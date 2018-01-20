@@ -34,6 +34,10 @@ class Controller(polyinterface.Controller):
         LOGGER.debug(GPIO.RPI_INFO)
         self.discover()
 
+    def stop(self):
+        LOGGER.debug('Cleaning up GPIOs')
+        GPIO.cleanup()
+
     def shortPoll(self):
         for node in self.nodes:
             self.nodes[node].updateInfo()
@@ -123,17 +127,9 @@ class GPIOpin(polyinterface.Node):
                }
 
 
-class HWInterface(polyinterface.Interface):
-    """ Just to override the stop method """
-    def stop(self):
-        LOGGER.debug('Cleaning up GPIOs')
-        GPIO.cleanup()
-        super().stop()
-
-
 if __name__ == "__main__":
     try:
-        polyglot = HWInterface('GPIO')
+        polyglot = polyinterface.Interface('GPIO')
         polyglot.start()
         control = Controller(polyglot)
         control.runForever()
