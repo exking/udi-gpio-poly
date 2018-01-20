@@ -1,0 +1,21 @@
+{
+    "name": "GPIO",
+    "docs": "https://github.com/exking/udi-gpio-poly",
+    "type": "python3",
+    "executable": "gpio-poly.py",
+    "install": "install.sh",
+    "description": "GPIO Poly",
+    "notice": "Don't blow up your Pi!",
+    "shortPoll": "5",
+    "longPoll": "60",
+    "credits": [
+        {
+            "title": "GPIO: a NodeServer to control Raspberry Pi GPIO Pins",
+            "author": "Andrey Pevnev",
+            "version": "0.0.1",
+            "date": "January 17, 2018",
+            "source": "https://github.com/exking/udi-gpio-poly",
+            "license": "https://raw.githubusercontent.com/exking/udi-gpio-poly/master/LICENSE"
+        }
+    ]
+}

@@ -1,0 +1,11 @@
+<editors>
+    <editor id="bool">
+        <range uom="2" />
+    </editor>
+    <editor id="GPIOST">
+        <range uom="25" subset="1-3" nls="PIN_STATE" />
+    </editor>
+    <editor id="GPIOMD">
+        <range uom="25" subset="1-7" nls="PIN_MODE" />
+    </editor>    
+</editors>

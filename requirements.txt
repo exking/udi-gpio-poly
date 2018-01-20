@@ -1,0 +1,2 @@
+polyinterface>=2.0.15
+RPi.GPIO>=0.6.3

@@ -1,0 +1,28 @@
+# controller
+ND-GPIO_HDR-NAME = GPIO Controller
+ND-GPIO_HDR-ICON = GenericCtl
+CMD-HDR-DISCOVER-NAME = Re-Discover
+ST-HDR-ST-NAME = NodeServer Online
+
+# gpio pin
+ND-GPIO_PIN-NAME = GPIO Pin
+ND-GPIO_PIN-ICON = Output
+ST-PIN-ST-NAME = State
+ST-PIN-GV0-NAME = Mode
+CMD-PIN-DON-NAME = Output High
+CMD-PIN-DOF-NAME = Output Low
+CMD-PIN-SET_INPUT-NAME = Raw Input
+CMD-PIN-PULLUP-NAME = Pullup Input
+CMD-PIN-PULLDOWN-NAME = Pulldown Input
+
+PIN_MODE-1 = Output
+PIN_MODE-2 = Input
+PIN_MODE-3 = Serial
+PIN_MODE-4 = SPI
+PIN_MODE-5 = I2C
+PIN_MODE-6 = Hardware PWM
+PIN_MODE-7 = Unknown
+
+PIN_STATE-1 = Low
+PIN_STATE-2 = High
+PIN_STATE-3 = N/A
