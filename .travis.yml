@@ -1,0 +1,9 @@
+language:
+- python
+python:
+- '3.6'
+script:
+- "./gpio-poly.py"
+notifications:
+  slack:
+    secure: KSWxs74l71bu7Tk3vM3uPk9sXZNNoknkJ8vpS+DVq8Cy3eoozq9mcDFFjgJ2rb925irPweON2PEX82pbg5Dp8jrrhvpxXA3ixMxS0Oj1jkacTevJO7WJGsha+HQMaskQDVFPqdcn7/r3jIx+OOmaCy7NnahUl+Coypw0kB9iUuawh2fxShP+IHB+R037lOMwNgE+hWQ+pXOd0Kil3uSgzfQgMxrPrXJ/jGsqlNHJezcnKqJaOYzS+J9X25bIawCg8HuZW2xPR9IM68s2jOD/S1xhKg3IP2a0S/MGeqJe2uX84GrfwvEd+quXVatvVbJmfVYkuHTnF7RJirjWMNhzOmwhF+WpSH+Q1/ymAGbfflm3AVH4mMP7CqEjQvpwgCmPE08ImEqsQ+S0Nz9ipF4fSIXq5/GEJQv2+ljEL5Jt4vzmqW2FOr16vM125WtCGLCgqQMsXafjIlmnXWBmWeOgP3JjlyahRbvJ0hfuskGCBnHhgnJSmIqqNvaolpEFT8fuZDKCzbrbtvHjgnmNIVnV866/JYjbF/MlWbCsSORInNs7oanayqZ5jXb1/dP/dajsikXnF5hbqTI+X12wI0b50ojJfglcLvB4Ps9BR7RhmjehDr0q2L90A4EfGLcXALkrLnlBwWRjMy1ieEFT5h6V3Kb7SIafyoDWxi4QnZT7T68=
