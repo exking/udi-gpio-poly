@@ -91,6 +91,8 @@ class GPIOpin(polyinterface.Node):
             LOGGER.debug('Stopping PIN {} PWM'.format(self.pinid))
             self.pwm.stop()
             self.pwm = None
+            self.pwm_dc = 0
+            self.pwm_freq = 0
         if cmd in ['SET_INPUT', 'PULLUP', 'PULLDOWN']:
             self.mode = 1  # Input
             self.setDriver('GV0', ISY_MODES[self.mode])
