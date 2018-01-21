@@ -9,11 +9,21 @@ ND-GPIO_PIN-NAME = GPIO Pin
 ND-GPIO_PIN-ICON = Output
 ST-PIN-ST-NAME = State
 ST-PIN-GV0-NAME = Mode
+ST-PIN-GV1-NAME = PWM Duty Cycle
+ST-PIN-GV2-NAME = PWM Frequency
 CMD-PIN-DON-NAME = Output High
 CMD-PIN-DOF-NAME = Output Low
 CMD-PIN-SET_INPUT-NAME = Raw Input
 CMD-PIN-PULLUP-NAME = Pullup Input
 CMD-PIN-PULLDOWN-NAME = Pulldown Input
+CMD-PIN-PWMON-NAME = Start PWM
+CMD-PIN-SET_DC-NAME = Change PWM Duty Cycle
+CMD-PIN-SET_FREQ-NAME = Change PWM Frequency
+
+PGM-CMD-PIN-PWMON-FMT = /D// Duty cycle ${v}/ /F// Frequency ${v}/
+
+CMDP-PWMDC-D-NAME = Duty Cycle
+CMDP-PWMHZ-F-NAME = Frequency
 
 PIN_MODE-1 = Output
 PIN_MODE-2 = Input

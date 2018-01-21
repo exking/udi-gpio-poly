@@ -2,8 +2,8 @@
     <nodeDef id="GPIO_HDR" nls="HDR">
         <editors />
         <sts>
-			<st id="ST" editor="bool" />
-		</sts>
+            <st id="ST" editor="bool" />
+        </sts>
         <cmds>
             <sends />
             <accepts>
@@ -16,6 +16,8 @@
         <sts>
             <st id="ST" editor="GPIOST" />
             <st id="GV0" editor="GPIOMD" />
+            <st id="GV1" editor="PWMDC" />
+            <st id="GV2" editor="PWMHZ" />
         </sts>
         <cmds>
             <sends />
@@ -26,6 +28,16 @@
                 <cmd id="SET_INPUT" />
                 <cmd id="PULLUP" />
                 <cmd id="PULLDOWN" />
+                <cmd id="PWMON">
+                    <p id="D" editor="PWMDC" init="GV1" />
+                    <p id="F" editor="PWMHZ" init="GV2" />
+                </cmd>
+                <cmd id="SET_DC">
+                    <p id="" editor="PWMDC" />
+                </cmd>
+                <cmd id="SET_FREQ">
+                    <p id="" editor="PWMHZ" />
+                </cmd>
             </accepts>
         </cmds>
     </nodeDef>

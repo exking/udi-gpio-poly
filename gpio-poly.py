@@ -71,6 +71,9 @@ class GPIOpin(polyinterface.Node):
         self.mode = None
         self.st = None
         self.setup = False
+        self.pwm = None
+        self.pwm_freq = 0
+        self.pwm_dc = 0
 
     def start(self):
         self.updateInfo()
@@ -78,10 +81,16 @@ class GPIOpin(polyinterface.Node):
     def updateInfo(self):
         self.mode = GPIO.gpio_function(self.pinid)
         self.setDriver('GV0', ISY_MODES[self.mode])
+        self.setDriver('GV1', self.pwm_dc)
+        self.setDriver('GV2', self.pwm_freq)
         self._reportSt()
 
     def setMode(self, command):
         cmd = command.get('cmd')
+        if self.pwm is not None:
+            LOGGER.debug('Stopping PIN {} PWM'.format(self.pinid))
+            self.pwm.stop()
+            self.pwm = None
         if cmd in ['SET_INPUT', 'PULLUP', 'PULLDOWN']:
             self.mode = 1  # Input
             self.setDriver('GV0', ISY_MODES[self.mode])
@@ -101,14 +110,52 @@ class GPIOpin(polyinterface.Node):
             else:
                 GPIO.output(self.pinid, GPIO.LOW)
         else:
-            LOGGER.error('Unrecognized command {}'.format(cmd))
+            LOGGER.error('setMode: Unrecognized command {}'.format(cmd))
             return False
         self.setup = True
         self._reportSt()
         return True
 
+    def startPWM(self, command):
+        query = command.get('query')
+        self.pwm_dc = float(query.get('D.uom51'))
+        self.pwm_freq = int(query.get('F.uom90'))
+        self.setDriver('GV1', self.pwm_dc)
+        self.setDriver('GV2', self.pwm_freq)
+        LOGGER.debug('Starting PWM DC {} at {} Hz'.format(self.pwm_dc, self.pwm_freq))
+        if self.pwm is not None:
+            ''' PWM has already started '''
+            self.pwm.ChangeFrequency(self.pwm_freq)
+            self.pwm.ChangeDutyCycle(self.pwm_dc)
+            return True
+        if self.mode not in [0, 43] or self.setup is False:
+            GPIO.setup(self.pinid, GPIO.OUT)
+        self.mode = 43
+        self.setDriver('GV0', ISY_MODES[self.mode])
+        self.pwm = GPIO.PWM(self.pinid, self.pwm_freq)
+        self.pwm.start(self.pwm_dc)
+        return True
+
+    def setPWM(self, command):
+        cmd = command.get('cmd')
+        if self.pwm is None:
+            LOGGER.warning('Pin {} is not in PWM mode'.format(self.pinid))
+            return False
+        if cmd == 'SET_DC':
+            self.pwm_dc = float(command.get('value'))
+            self.setDriver('GV1', self.pwm_dc)
+            self.pwm.ChangeDutyCycle(self.pwm_dc)
+        elif cmd == 'SET_FREQ':
+            self.pwm_freq = int(command.get('value'))
+            self.setDriver('GV2', self.pwm_freq)
+            self.pwm.ChangeFrequency(self.pwm_freq)
+        else:
+            LOGGER.error('setPWM: Unrecognized command {}'.format(cmd))
+            return False
+        return True
+
     def _reportSt(self):
-        if self.mode in [0, 1] and self.setup:
+        if self.mode in [0, 1] and self.setup and self.pwm is None:
             if GPIO.input(self.pinid):
                 self.setDriver('ST', 2)  # High
             else:
@@ -121,12 +168,15 @@ class GPIOpin(polyinterface.Node):
         self.reportDrivers()
 
     drivers = [{'driver': 'ST', 'value': 0, 'uom': 25},
-               {'driver': 'GV0', 'value': 0, 'uom': 25}
+               {'driver': 'GV0', 'value': 0, 'uom': 25},
+               {'driver': 'GV1', 'value': 0, 'uom': 51},
+               {'driver': 'GV2', 'value': 0, 'uom': 90}
               ]
     id = 'GPIO_PIN'
     commands = {
                     'DON': setMode, 'DOF': setMode, 'SET_INPUT': setMode,
-                    'PULLUP': setMode, 'PULLDOWN': setMode, 'QUERY': query
+                    'PULLUP': setMode, 'PULLDOWN': setMode, 'QUERY': query,
+                    'PWMON': startPWM, 'SET_DC': setPWM, 'SET_FREQ': setPWM
                }
 
 
