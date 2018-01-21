@@ -2,7 +2,7 @@
 
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/exking/udi-gpio-poly/blob/master/LICENSE)
 
-This Poly provides an interface between Raspberry Pi GPIO header and [Polyglot v2](https://github.com/UniversalDevicesInc/polyglot-v2) server.
+This Poly provides an interface between [Raspberry Pi GPIO](https://www.raspberrypi.org/documentation/usage/gpio-plus-and-raspi2/) header and [Polyglot v2](https://github.com/UniversalDevicesInc/polyglot-v2) server.
 
 ### Installation instructions
 
