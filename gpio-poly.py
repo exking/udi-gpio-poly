@@ -76,6 +76,8 @@ class GPIOpin(polyinterface.Node):
         self.pwm_dc = 0
 
     def start(self):
+        self.pwm_dc = float(self.getDriver('GV1'))
+        self.pwm_freq = int(self.getDriver('GV2'))
         self.updateInfo()
 
     def updateInfo(self):
@@ -91,8 +93,6 @@ class GPIOpin(polyinterface.Node):
             LOGGER.debug('Stopping PIN {} PWM'.format(self.pinid))
             self.pwm.stop()
             self.pwm = None
-            self.pwm_dc = 0
-            self.pwm_freq = 0
         if cmd in ['SET_INPUT', 'PULLUP', 'PULLDOWN']:
             self.mode = 1  # Input
             self.setDriver('GV0', ISY_MODES[self.mode])
@@ -124,7 +124,43 @@ class GPIOpin(polyinterface.Node):
         self.pwm_freq = int(query.get('F.uom90'))
         self.setDriver('GV1', self.pwm_dc)
         self.setDriver('GV2', self.pwm_freq)
-        LOGGER.debug('Starting PWM DC {} at {} Hz'.format(self.pwm_dc, self.pwm_freq))
+        self._pwm()
+        return True
+
+    def setPWM(self, command):
+        cmd = command.get('cmd')
+        if self.pwm is None:
+            LOGGER.info('Pin {} is not in PWM mode'.format(self.pinid))
+        if cmd == 'SET_DC':
+            self.pwm_dc = float(command.get('value'))
+            self.setDriver('GV1', self.pwm_dc)
+            if self.pwm is not None:
+                self.pwm.ChangeDutyCycle(self.pwm_dc)
+        elif cmd == 'SET_FREQ':
+            self.pwm_freq = int(command.get('value'))
+            self.setDriver('GV2', self.pwm_freq)
+            if self.pwm is not None:
+                self.pwm.ChangeFrequency(self.pwm_freq)
+        elif cmd == 'PWM':
+            self._pwm()
+        else:
+            LOGGER.error('setPWM: Unrecognized command {}'.format(cmd))
+            return False
+        return True
+
+    def _reportSt(self):
+        if self.pwm is not None:
+            self.setDriver('ST', 4)  # PWM
+        elif self.mode in [0, 1] and self.setup:
+            if GPIO.input(self.pinid):
+                self.setDriver('ST', 2)  # High
+            else:
+                self.setDriver('ST', 1)  # Low
+        else:
+            self.setDriver('ST', 3)  # N/A
+
+    def _pwm(self):
+        LOGGER.info('Starting PIN {} PWM DC {} at {} Hz'.format(self.pinid, self.pwm_dc, self.pwm_freq))
         if self.pwm is not None:
             ''' PWM has already started '''
             self.pwm.ChangeFrequency(self.pwm_freq)
@@ -136,34 +172,6 @@ class GPIOpin(polyinterface.Node):
         self.setDriver('GV0', ISY_MODES[self.mode])
         self.pwm = GPIO.PWM(self.pinid, self.pwm_freq)
         self.pwm.start(self.pwm_dc)
-        return True
-
-    def setPWM(self, command):
-        cmd = command.get('cmd')
-        if self.pwm is None:
-            LOGGER.warning('Pin {} is not in PWM mode'.format(self.pinid))
-            return False
-        if cmd == 'SET_DC':
-            self.pwm_dc = float(command.get('value'))
-            self.setDriver('GV1', self.pwm_dc)
-            self.pwm.ChangeDutyCycle(self.pwm_dc)
-        elif cmd == 'SET_FREQ':
-            self.pwm_freq = int(command.get('value'))
-            self.setDriver('GV2', self.pwm_freq)
-            self.pwm.ChangeFrequency(self.pwm_freq)
-        else:
-            LOGGER.error('setPWM: Unrecognized command {}'.format(cmd))
-            return False
-        return True
-
-    def _reportSt(self):
-        if self.mode in [0, 1] and self.setup and self.pwm is None:
-            if GPIO.input(self.pinid):
-                self.setDriver('ST', 2)  # High
-            else:
-                self.setDriver('ST', 1)  # Low
-        else:
-            self.setDriver('ST', 3)  # N/A
 
     def query(self):
         self.updateInfo()
@@ -178,7 +186,8 @@ class GPIOpin(polyinterface.Node):
     commands = {
                     'DON': setMode, 'DOF': setMode, 'SET_INPUT': setMode,
                     'PULLUP': setMode, 'PULLDOWN': setMode, 'QUERY': query,
-                    'PWMON': startPWM, 'SET_DC': setPWM, 'SET_FREQ': setPWM
+                    'PWMON': startPWM, 'SET_DC': setPWM, 'SET_FREQ': setPWM,
+                    'PWM': setPWM
                }
 
 

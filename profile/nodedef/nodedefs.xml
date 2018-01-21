@@ -28,6 +28,7 @@
                 <cmd id="SET_INPUT" />
                 <cmd id="PULLUP" />
                 <cmd id="PULLDOWN" />
+                <cmd id="PWM" />
                 <cmd id="PWMON">
                     <p id="D" editor="PWMDC" init="GV1" />
                     <p id="F" editor="PWMHZ" init="GV2" />
