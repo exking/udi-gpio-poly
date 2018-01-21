@@ -172,6 +172,8 @@ class GPIOpin(polyinterface.Node):
         self.setDriver('GV0', ISY_MODES[self.mode])
         self.pwm = GPIO.PWM(self.pinid, self.pwm_freq)
         self.pwm.start(self.pwm_dc)
+        self._reportSt()
+        return True
 
     def query(self):
         self.updateInfo()
