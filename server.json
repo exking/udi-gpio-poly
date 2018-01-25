@@ -11,8 +11,8 @@
     "credits": [
         {
             "title": "GPIO: a NodeServer to control Raspberry Pi GPIO Pins",
-            "author": "Andrey Pevnev",
-            "version": "0.0.1",
+            "author": "xKing",
+            "version": "0.0.2",
             "date": "January 17, 2018",
             "source": "https://github.com/exking/udi-gpio-poly",
             "license": "https://raw.githubusercontent.com/exking/udi-gpio-poly/master/LICENSE"

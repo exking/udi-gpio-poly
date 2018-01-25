@@ -3,7 +3,7 @@
 import polyinterface
 import sys
 import RPi.GPIO as GPIO
-import signal
+#import signal
 
 # These are physical PIN number
 GPIO_PINS = [3,5,7,8,10,11,12,13,15,16,18,19,21,22,23,24,26,29,31,32,33,35,36,37,38,40]
@@ -35,11 +35,9 @@ class Controller(polyinterface.Controller):
         LOGGER.debug(GPIO.RPI_INFO)
         self.discover()
 
-    '''
     def stop(self):
         LOGGER.debug('Cleaning up GPIOs')
         GPIO.cleanup()
-    '''
 
     def shortPoll(self):
         for node in self.nodes:
@@ -76,8 +74,14 @@ class GPIOpin(polyinterface.Node):
         self.pwm_dc = 0
 
     def start(self):
-        self.pwm_dc = float(self.getDriver('GV1'))
-        self.pwm_freq = int(self.getDriver('GV2'))
+        try:
+            self.pwm_dc = float(self.getDriver('GV1'))
+        except:
+            self.pwm_dc = 0
+        try:
+            self.pwm_freq = int(self.getDriver('GV2'))
+        except:
+            self.pwm_freq = 0
         self.updateInfo()
 
     def updateInfo(self):
@@ -193,14 +197,14 @@ class GPIOpin(polyinterface.Node):
                }
 
 
-def signal_term_handler(signal, frame):
-    LOGGER.warning('Got SIGTERM, exiting...')
-    GPIO.cleanup()
-    sys.exit(0)
+#def signal_term_handler(signal, frame):
+#    LOGGER.warning('Got SIGTERM, exiting...')
+#    GPIO.cleanup()
+#    sys.exit(0)
 
 
 if __name__ == "__main__":
-    signal.signal(signal.SIGTERM, signal_term_handler)
+#    signal.signal(signal.SIGTERM, signal_term_handler)
     try:
         polyglot = polyinterface.Interface('GPIO')
         polyglot.start()
