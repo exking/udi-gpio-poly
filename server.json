@@ -4,7 +4,7 @@
     "type": "python3",
     "executable": "gpio-poly.py",
     "install": "install.sh",
-    "description": "GPIO Poly",
+    "description": "Raspberry Pi GPIO pins control",
     "notice": "Don't blow up your Pi!",
     "shortPoll": "5",
     "longPoll": "60",
