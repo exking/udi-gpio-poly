@@ -2,7 +2,7 @@
     <nodeDef id="GPIO_HDR" nls="HDR">
         <editors />
         <sts>
-            <st id="ST" editor="bool" />
+            <st id="ST" editor="_2_0_R_0_1" />
         </sts>
         <cmds>
             <sends />

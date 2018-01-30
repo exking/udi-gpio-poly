@@ -1,7 +1,4 @@
 <editors>
-    <editor id="bool">
-        <range uom="2" />
-    </editor>
     <editor id="GPIOST">
         <range uom="25" subset="1-4" nls="PIN_STATE" />
     </editor>
