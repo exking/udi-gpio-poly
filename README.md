@@ -5,7 +5,7 @@
 This Poly provides an interface between [Raspberry Pi GPIO](https://www.raspberrypi.org/documentation/usage/gpio-plus-and-raspi2/) header and [Polyglot v2](https://github.com/UniversalDevicesInc/polyglot-v2) server.
 
 ### Installation instructions
-
+Make sure that you have a `zip` executable on the system, install using your OS package manager if necessarily.
 You can install it from the Polyglot store or manually running
 ```
 cd ~/.polyglot/nodeservers
