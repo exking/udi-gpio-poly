@@ -17,6 +17,6 @@ Make sure that user you run Polyglot as is a member of `gpio` group (user `pi` t
 
 ### Notes
 
-Please report any problems on the UDI user forum.
+Please report any problems on the [UDI user forum](https://forum.universal-devices.com/topic/23463-raspberry-pi-gpio-nodeserver-for-polyglot-v2/).
 
 Thanks and good luck.
