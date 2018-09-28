@@ -86,8 +86,8 @@ class GPIOpin(polyinterface.Node):
         self.updateInfo()
 
     def updateInfo(self):
-        if self.callback_set:
-            return True # updates are handled by callback functions
+        # if self.callback_set:
+        #     return True # updates are handled by callback functions
         self.mode = GPIO.gpio_function(self.pinid)
         self.setDriver('GV0', ISY_MODES[self.mode])
         self.setDriver('GV1', self.pwm_dc)
