@@ -190,8 +190,10 @@ class GPIOpin(polyinterface.Node):
 
     def _reportCb(self):
         if GPIO.input(self.pinid):
+            self.reportCmd('DON')
             self.setDriver('ST', 2)  # High
         else:
+            self.reportCmd('DOF')
             self.setDriver('ST', 1)  # Low
 
     def _pwm(self):

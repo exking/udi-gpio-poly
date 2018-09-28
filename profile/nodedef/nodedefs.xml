@@ -20,7 +20,10 @@
             <st id="GV2" editor="PWMHZ" />
         </sts>
         <cmds>
-            <sends />
+            <sends>
+                <cmd id="DON" />
+                <cmd id="DOF" />
+            </sends>
             <accepts>
                 <cmd id="DON" />
                 <cmd id="DOF" />
