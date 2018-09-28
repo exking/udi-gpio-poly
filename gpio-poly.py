@@ -113,15 +113,15 @@ class GPIOpin(polyinterface.Node):
             self.setDriver('GV0', ISY_MODES[self.mode])
             if cmd == 'PULLUP':
                 GPIO.setup(self.pinid, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-                GPIO.add_event_detect(self.pinid, GPIO.BOTH, callback=self._callback, bouncetime=100)
+                GPIO.add_event_detect(self.pinid, GPIO.BOTH, callback=self._callback, bouncetime=50)
                 self.callback_set = True
             elif cmd == 'PULLDOWN':
                 GPIO.setup(self.pinid, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-                GPIO.add_event_detect(self.pinid, GPIO.BOTH, callback=self._callback, bouncetime=100)
+                GPIO.add_event_detect(self.pinid, GPIO.BOTH, callback=self._callback, bouncetime=50)
                 self.callback_set = True
             else:
                 GPIO.setup(self.pinid, GPIO.IN)
-                GPIO.add_event_detect(self.pinid, GPIO.BOTH, callback=self._callback, bouncetime=100)
+                GPIO.add_event_detect(self.pinid, GPIO.BOTH, callback=self._callback, bouncetime=50)
                 self.callback_set = True
         elif cmd in ['DON', 'DOF']:
             if self.mode != 0 or self.setup is False:  # Output
