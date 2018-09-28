@@ -95,7 +95,6 @@ class GPIOpin(polyinterface.Node):
         self._reportSt()
 
     def _callback(self, channel):
-        LOGGER.debug('Callback')
         self._reportCb()
 
     def setMode(self, command):
@@ -190,9 +189,11 @@ class GPIOpin(polyinterface.Node):
 
     def _reportCb(self):
         if GPIO.input(self.pinid):
+            LOGGER.debug('Callback - High')
             self.reportCmd('DON')
             self.setDriver('ST', 2)  # High
         else:
+            LOGGER.debug('Callback - Low')
             self.reportCmd('DOF')
             self.setDriver('ST', 1)  # Low
 
