@@ -46,7 +46,7 @@ class Controller(polyinterface.Controller):
     def updateInfo(self):
         pass
 
-    def query(self):
+    def query(self, command=None):
         for node in self.nodes:
             self.nodes[node].reportDrivers()
 
@@ -67,12 +67,13 @@ class GPIOpin(polyinterface.Node):
         super().__init__(controller, primary, address, name)
         self.pinid = pinid
         self.mode = None
-        self.st = None
+        self.st = False
         self.setup = False
         self.pwm = None
         self.pwm_freq = 0
         self.pwm_dc = 0
         self.callback_set = False
+        self.debounce_time = 0
 
     def start(self):
         try:
@@ -83,6 +84,10 @@ class GPIOpin(polyinterface.Node):
             self.pwm_freq = int(self.getDriver('GV2'))
         except:
             self.pwm_freq = 0
+        try:
+            self.debounce_time = int(self.getDriver('GV3'))
+        except:
+            self.debounce_time = 200
         self.updateInfo()
 
     def updateInfo(self):
@@ -92,6 +97,11 @@ class GPIOpin(polyinterface.Node):
         self.setDriver('GV0', ISY_MODES[self.mode])
         self.setDriver('GV1', self.pwm_dc)
         self.setDriver('GV2', self.pwm_freq)
+        self.setDriver('GV3', self.debounce_time)
+        if self.callback_set:
+            self.setDriver('GV4', 1)
+        else:
+            self.setDriver('GV4', 0)
         self._reportSt()
 
     def _callback(self, channel):
@@ -103,6 +113,7 @@ class GPIOpin(polyinterface.Node):
             LOGGER.debug('Removing all callback')
             GPIO.remove_event_detect(self.pinid)
             self.callback_set = False
+            self.setDriver('GV4', 0)
         if self.pwm is not None:
             LOGGER.debug('Stopping PIN {} PWM'.format(self.pinid))
             self.pwm.stop()
@@ -112,16 +123,32 @@ class GPIOpin(polyinterface.Node):
             self.setDriver('GV0', ISY_MODES[self.mode])
             if cmd == 'PULLUP':
                 GPIO.setup(self.pinid, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-                GPIO.add_event_detect(self.pinid, GPIO.BOTH, callback=self._callback, bouncetime=50)
+                GPIO.add_event_detect(self.pinid, GPIO.BOTH, callback=self._callback, bouncetime=self.debounce_time)
                 self.callback_set = True
+                self.setDriver('GV4', 1)
+                self.st = True
             elif cmd == 'PULLDOWN':
                 GPIO.setup(self.pinid, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-                GPIO.add_event_detect(self.pinid, GPIO.BOTH, callback=self._callback, bouncetime=50)
+                GPIO.add_event_detect(self.pinid, GPIO.BOTH, callback=self._callback, bouncetime=self.debounce_time)
                 self.callback_set = True
+                self.setDriver('GV4', 1)
+                self.st = False
             else:
                 GPIO.setup(self.pinid, GPIO.IN)
-                GPIO.add_event_detect(self.pinid, GPIO.BOTH, callback=self._callback, bouncetime=50)
+                GPIO.add_event_detect(self.pinid, GPIO.BOTH, callback=self._callback, bouncetime=self.debounce_time)
                 self.callback_set = True
+                self.setDriver('GV4', 1)
+        elif cmd in ['SET_INPUTS', 'PULLUPS', 'PULLDOWNS']:
+            self.mode = 1  # Input
+            self.setDriver('GV0', ISY_MODES[self.mode])
+            if cmd == 'PULLUPS':
+                GPIO.setup(self.pinid, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+                self.st = True
+            elif cmd == 'PULLDOWNS':
+                GPIO.setup(self.pinid, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+                self.st = False
+            else:
+                GPIO.setup(self.pinid, GPIO.IN)
         elif cmd in ['DON', 'DOF']:
             if self.mode != 0 or self.setup is False:  # Output
                 self.mode = 0
@@ -129,8 +156,10 @@ class GPIOpin(polyinterface.Node):
                 GPIO.setup(self.pinid, GPIO.OUT)
             if cmd == 'DON':
                 GPIO.output(self.pinid, GPIO.HIGH)
+                self.st = True
             else:
                 GPIO.output(self.pinid, GPIO.LOW)
+                self.st = False
         else:
             LOGGER.error('setMode: Unrecognized command {}'.format(cmd))
             return False
@@ -143,6 +172,7 @@ class GPIOpin(polyinterface.Node):
             LOGGER.debug('Removing all callback')
             GPIO.remove_event_detect(self.pinid)
             self.callback_set = False
+            self.setDriver('GV4', 0)
         query = command.get('query')
         self.pwm_dc = float(query.get('D.uom51'))
         self.pwm_freq = int(query.get('F.uom90'))
@@ -176,14 +206,27 @@ class GPIOpin(polyinterface.Node):
             return False
         return True
 
+    def setDebounce(self, command):
+        cmd = command.get('cmd')
+        self.debounce_time = int(command.get('value'))
+        self.setDriver('GV3', self.debounce_time)
+        if self.callback_set:
+            LOGGER.warning('Debounce time will change next time callback is set')
+
     def _reportSt(self):
         if self.pwm is not None:
             self.setDriver('ST', 4)  # PWM
         elif self.mode in [0, 1] and self.setup:
             if GPIO.input(self.pinid):
                 self.setDriver('ST', 2)  # High
+                if self.st is False:
+                    self.reportCmd('DON')
+                    self.st = True
             else:
                 self.setDriver('ST', 1)  # Low
+                if self.st is True:
+                    self.reportCmd('DOF')
+                    self.st = False
         else:
             self.setDriver('ST', 3)  # N/A
 
@@ -192,10 +235,12 @@ class GPIOpin(polyinterface.Node):
             LOGGER.debug('Callback - High')
             self.reportCmd('DON')
             self.setDriver('ST', 2)  # High
+            self.st = True
         else:
             LOGGER.debug('Callback - Low')
             self.reportCmd('DOF')
             self.setDriver('ST', 1)  # Low
+            self.st = False
 
     def _pwm(self):
         LOGGER.info('Starting PIN {} PWM DC {} at {} Hz'.format(self.pinid, self.pwm_dc, self.pwm_freq))
@@ -210,24 +255,28 @@ class GPIOpin(polyinterface.Node):
         self.setDriver('GV0', ISY_MODES[self.mode])
         self.pwm = GPIO.PWM(self.pinid, self.pwm_freq)
         self.pwm.start(self.pwm_dc)
+        self.st = False
         self._reportSt()
         return True
 
-    def query(self):
+    def query(self, command=None):
         self.updateInfo()
         self.reportDrivers()
 
     drivers = [{'driver': 'ST', 'value': 0, 'uom': 25},
                {'driver': 'GV0', 'value': 0, 'uom': 25},
                {'driver': 'GV1', 'value': 0, 'uom': 51},
-               {'driver': 'GV2', 'value': 0, 'uom': 90}
+               {'driver': 'GV2', 'value': 0, 'uom': 90},
+               {'driver': 'GV3', 'value': 0, 'uom': 42},
+               {'driver': 'GV4', 'value': 0, 'uom': 2}
               ]
     id = 'GPIO_PIN'
     commands = {
                     'DON': setMode, 'DOF': setMode, 'SET_INPUT': setMode,
                     'PULLUP': setMode, 'PULLDOWN': setMode, 'QUERY': query,
+                    'PULLUPS': setMode, 'PULLDOWNS': setMode, 'SET_INPUTS': setMode,
                     'PWMON': startPWM, 'SET_DC': setPWM, 'SET_FREQ': setPWM,
-                    'PWM': setPWM
+                    'PWM': setPWM, 'SET_DBNC': setDebounce
                }
 
 
