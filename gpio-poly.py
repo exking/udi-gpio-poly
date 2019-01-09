@@ -15,8 +15,6 @@ GPIO_PORTS = [2,3,4,17,27,22,10,9,11,5,6,13,19,26,14,15,18,23,24,25,8,7,12,16,20
 PORT_MODE = {0: 'GPIO.OUT', 1: 'GPIO.IN', 40: 'GPIO.SERIAL', 
              41: 'GPIO.SPI', 42: 'GPIO.I2C', 43: 'GPIO.HARD_PWM', -1: 'GPIO.UNKNOWN'}
 
-GPIO_MODE = GPIO.BOARD
-
 LOGGER = polyinterface.LOGGER
 
 # GPIO mode to ISY mode id
@@ -31,7 +29,7 @@ class Controller(polyinterface.Controller):
 
     def start(self):
         LOGGER.info('Started GPIO Pin controller')
-        GPIO.setmode(GPIO_MODE)
+        self.check_params()
         LOGGER.debug(GPIO.RPI_INFO)
         self.discover()
 
@@ -56,6 +54,25 @@ class Controller(polyinterface.Controller):
             name = 'Pin '+str(i)
             if not address in self.nodes:
                 self.addNode(GPIOpin(self, self.address, address, name, i))
+
+    def check_params(self, command=None):
+        # Going to try to gracefull allow user to select GPIO Mode, using customParams
+        # for more info - https://sourceforge.net/p/raspberry-gpio-python/wiki/BasicUsage/
+        LOGGER.debug('Setting GPIO mode')
+        if 'GPIO_MODE' in self.polyConfig['customParams']:
+            LOGGER.debug('A customParams for GPIO_MODE detected')
+            self.mode = self.polyConfig['customParams']['GPIO_MODE']
+            if self.mode == 'GPIO.BCM':
+                GPIO_MODE = GPIO.BCM
+                LOGGER.debug('GPIO_MODE param - BCM (11)')
+                GPIO_PINS = list(GPIO_PORTS)
+                LOGGER.debug('GPIO_PINS converted to GPIO_PORTS numbers')
+        else:
+            GPIO_MODE = GPIO.BOARD
+            LOGGER.debug('GPIO_MODE going to be set as BOARD (10)')
+        GPIO.setmode(GPIO_MODE)
+        mode = format(GPIO_MODE)
+        LOGGER.debug('GPIO mode set - ' + mode)
 
     id = 'GPIO_HDR'
     commands = {'DISCOVER': discover}
@@ -278,7 +295,6 @@ class GPIOpin(polyinterface.Node):
                     'PWMON': startPWM, 'SET_DC': setPWM, 'SET_FREQ': setPWM,
                     'PWM': setPWM, 'SET_DBNC': setDebounce
                }
-
 
 #def signal_term_handler(signal, frame):
 #    LOGGER.warning('Got SIGTERM, exiting...')
