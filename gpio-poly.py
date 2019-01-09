@@ -59,6 +59,7 @@ class Controller(polyinterface.Controller):
         # Going to try to gracefull allow user to select GPIO Mode, using customParams
         # for more info - https://sourceforge.net/p/raspberry-gpio-python/wiki/BasicUsage/
         LOGGER.debug('Setting GPIO mode')
+        GPIO_MODE = GPIO.BOARD
         if 'GPIO_MODE' in self.polyConfig['customParams']:
             LOGGER.debug('A customParams for GPIO_MODE detected')
             self.mode = self.polyConfig['customParams']['GPIO_MODE']
@@ -68,7 +69,6 @@ class Controller(polyinterface.Controller):
                 GPIO_PINS = list(GPIO_PORTS)
                 LOGGER.debug('GPIO_PINS converted to GPIO_PORTS numbers')
         else:
-            GPIO_MODE = GPIO.BOARD
             LOGGER.debug('GPIO_MODE going to be set as BOARD (10)')
         GPIO.setmode(GPIO_MODE)
         mode = format(GPIO_MODE)

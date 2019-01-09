@@ -2,6 +2,7 @@
 - Currently the only Custom Configuration Parameter to set:
     - key = GPIO_MODE
     - Valid "values": GPIO.BCM or GPIO.BOARD (default = GPIO.BOARD if nothing specified)
+    - Must do a manual restart of GPIO node server after making changes.
 - This pertains to the pin numbers.  From <https://sourceforge.net/p/raspberry-gpio-python/wiki/BasicUsage/>
 
 >There are two ways of numbering the IO pins on a Raspberry Pi within RPi.GPIO. The first is using the BOARD numbering system. This refers to the pin numbers on the P1 header of the Raspberry Pi board. The advantage of using this numbering system is that your hardware will always work, regardless of the board revision of the RPi. You will not need to rewire your connector or change your code.
